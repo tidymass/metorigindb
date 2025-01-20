@@ -75,3 +75,5 @@ metabolite_database_final <-
 
 dir.create("3_data_analysis/1_KEGG/metabolites", showWarnings = FALSE)
 setwd("3_data_analysis/1_KEGG/metabolites")
+
+save(metabolite_info, file = "metabolite_info.rda")
