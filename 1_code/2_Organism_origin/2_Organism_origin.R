@@ -21,7 +21,7 @@ orgs <- as.data.frame(orgs)
 colnames(orgs) <- c("KEGGid", "Name", "Species", "Phylogeny")
 
 # get organism name list from metabolite table
-load("3_data_analysis/1_KEGG/metabolites/metabolite_info_final.rda")
+load("2_data/1_KEGG/metabolite_info/metabolite_info_final.rda")
 organism_list <- 
   metabolite_database_final %>% 
   pull(organism) %>% 
