@@ -1,23 +1,19 @@
 library(r4projects)
 setwd(get_project_wd())
 rm(list = ls())
-source('1_code/100_tools.R')
 
-library(metid)
-library(tidyverse)
-
-library(dplyr)
-library(ggplot2)
-library(XML)
-
-### to get KEGG database
-library(KEGGgraph)
-library(KEGGREST)
 library(tidyverse)
 
 load("2_data/3_Metabolite_origin/Metabolite_origin.rda")
 load("2_data/4_KEGG_all/kegg_compound_dataframe/kegg_compound_dataframe.rda")
 load("2_data/5_DRUG/kegg_drug_dataframe/kegg_drug_dataframe.rda")
+
+# keep one id and remove ids start with "G"
+kegg_compound_dataframe$DRUG_ID <- word(kegg_compound_dataframe$DRUG_ID, 1)
+kegg_compound_dataframe$DRUG_ID[str_detect(kegg_compound_dataframe$DRUG_ID, "G")] <- NA
+
+any(str_detect(Compound_combined_result$DRUG_ID, " "))
+kegg_drug_dataframe$COMPOUND_ID <- word(kegg_drug_dataframe$COMPOUND_ID, 1)
 
 
 Combined_dataframe <- 
@@ -29,24 +25,23 @@ Combined_dataframe <-
          "NIKKAJI_ID", "KNApSAcK_ID", "LIPIDMAPS_ID", "LipidBank_ID", "LigandBox_ID", "DrugBank_ID", 
          "ATOM", "BOND", "COMMENT")
 
-Combined_dataframe$compound_id_first = ifelse(Combined_dataframe$COMPOUND_ID == "NA", NA, strsplit(Combined_dataframe$COMPOUND_ID, " ") %>% 
-                                                sapply(`[[`, 1))
-
+# combine according to compound id
 Compound_combined_result <- 
   Combined_dataframe %>%
-  filter(!is.na(compound_id_first)) %>%  
-  group_by(compound_id_first) %>%
+  filter(!is.na(COMPOUND_ID)) %>%  
+  group_by(COMPOUND_ID) %>%
   summarise(
     
-    COMPOUND_ID = ifelse(
-      all(is.na(COMPOUND_ID)), NA, 
-      paste(unique(unlist(strsplit(na.omit(COMPOUND_ID), " "))), collapse = " ")
-    ),
+    # DRUG_ID = ifelse(
+    #   all(is.na(DRUG_ID)), NA,  
+    #   paste(unique(unlist(strsplit(na.omit(DRUG_ID), " "))), collapse = " ")
+    # ),
     
     DRUG_ID = ifelse(
       all(is.na(DRUG_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(DRUG_ID), " "))), collapse = " ")
+      paste(unique(na.omit(DRUG_ID)), collapse = "{}")
     ),
+    
     
     NAME = ifelse(
       all(is.na(NAME)), NA, 
@@ -123,9 +118,9 @@ Compound_combined_result <-
       paste(unique(unlist(strsplit(paste(na.omit(ENZYME), collapse = "{}"), "\\{\\}"))), collapse = "{}")
     ),
     
-    NAME = ifelse(
-      all(is.na(NAME)), NA, 
-      paste(unique(unlist(strsplit(paste(na.omit(NAME), collapse = "{}"), "\\{\\}"))), collapse = "{}")
+    BRITE = ifelse(
+      all(is.na(BRITE)), NA, 
+      paste(unique(unlist(strsplit(paste(na.omit(BRITE), collapse = "{}"), "\\{\\}"))), collapse = "{}")
     ),
     
     BRITE = ifelse(
@@ -140,62 +135,62 @@ Compound_combined_result <-
     
     CAS_ID = ifelse(
       all(is.na(CAS_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(CAS_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(CAS_ID), " "))), collapse = "{}")
     ),
     
     PubChem_ID = ifelse(
       all(is.na(PubChem_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(PubChem_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(PubChem_ID), " "))), collapse = "{}")
     ),
     
     ChEBI_ID = ifelse(
       all(is.na(ChEBI_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(ChEBI_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(ChEBI_ID), " "))), collapse = "{}")
     ),
     
     ChEMBL_ID = ifelse(
       all(is.na(ChEMBL_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(ChEMBL_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(ChEMBL_ID), " "))), collapse = "{}")
     ),
     
     `PDB-CCD_ID` = ifelse(
       all(is.na(`PDB-CCD_ID`)), NA,  
-      paste(unique(unlist(strsplit(na.omit(`PDB-CCD_ID`), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(`PDB-CCD_ID`), " "))), collapse = "{}")
     ),
     
     `3DMET_ID` = ifelse(
       all(is.na(`3DMET_ID`)), NA,  
-      paste(unique(unlist(strsplit(na.omit(`3DMET_ID`), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(`3DMET_ID`), " "))), collapse = "{}")
     ),
     
     NIKKAJI_ID = ifelse(
       all(is.na(NIKKAJI_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(NIKKAJI_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(NIKKAJI_ID), " "))), collapse = "{}")
     ),
     
     KNApSAcK_ID = ifelse(
       all(is.na(KNApSAcK_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(KNApSAcK_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(KNApSAcK_ID), " "))), collapse = "{}")
     ),
     
     LIPIDMAPS_ID = ifelse(
       all(is.na(LIPIDMAPS_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(LIPIDMAPS_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(LIPIDMAPS_ID), " "))), collapse = "{}")
     ),
     
     LipidBank_ID = ifelse(
       all(is.na(LipidBank_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(LipidBank_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(LipidBank_ID), " "))), collapse = "{}")
     ),
     
     LigandBox_ID = ifelse(
       all(is.na(LigandBox_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(LigandBox_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(LigandBox_ID), " "))), collapse = "{}")
     ),
     
     DrugBank_ID = ifelse(
       all(is.na(DrugBank_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(DrugBank_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(DrugBank_ID), " "))), collapse = "{}")
     ),
     
     ATOM = ifelse(
@@ -215,30 +210,22 @@ Compound_combined_result <-
     
   ) %>%
   ungroup() %>%
-  bind_rows(Combined_dataframe %>% filter(is.na(compound_id_first)))
+  bind_rows(Combined_dataframe %>% filter(is.na(COMPOUND_ID)))
 
-Compound_combined_result <- 
-  Compound_combined_result %>% 
-  dplyr::select(-compound_id_first)
-
-Compound_combined_result$drug_id_first = ifelse(Compound_combined_result$DRUG_ID == "NA", NA, strsplit(Compound_combined_result$DRUG_ID, " ") %>% 
-                                                sapply(`[[`, 1))
+which(str_detect(Compound_combined_result$DRUG_ID, "\\{\\}"))
+Compound_combined_result$DRUG_ID <- word(Compound_combined_result$DRUG_ID, 1, sep = "\\{\\}")
 
 Final_combined_result <- 
   Compound_combined_result %>%
-  filter(!is.na(drug_id_first)) %>%  
-  group_by(drug_id_first) %>%
+  filter(!is.na(DRUG_ID)) %>%  
+  group_by(DRUG_ID) %>%
   summarise(
     
     COMPOUND_ID = ifelse(
-      all(is.na(COMPOUND_ID)), NA, 
-      paste(unique(unlist(strsplit(na.omit(COMPOUND_ID), " "))), collapse = " ")
+      all(is.na(COMPOUND_ID)), NA,  
+      paste(unique(na.omit(COMPOUND_ID)), collapse = "{}")
     ),
     
-    DRUG_ID = ifelse(
-      all(is.na(DRUG_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(DRUG_ID), " "))), collapse = " ")
-    ),
     
     NAME = ifelse(
       all(is.na(NAME)), NA, 
@@ -315,9 +302,9 @@ Final_combined_result <-
       paste(unique(unlist(strsplit(paste(na.omit(ENZYME), collapse = "{}"), "\\{\\}"))), collapse = "{}")
     ),
     
-    NAME = ifelse(
-      all(is.na(NAME)), NA, 
-      paste(unique(unlist(strsplit(paste(na.omit(NAME), collapse = "{}"), "\\{\\}"))), collapse = "{}")
+    BRITE = ifelse(
+      all(is.na(BRITE)), NA, 
+      paste(unique(unlist(strsplit(paste(na.omit(BRITE), collapse = "{}"), "\\{\\}"))), collapse = "{}")
     ),
     
     BRITE = ifelse(
@@ -332,62 +319,62 @@ Final_combined_result <-
     
     CAS_ID = ifelse(
       all(is.na(CAS_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(CAS_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(CAS_ID), " "))), collapse = "{}")
     ),
     
     PubChem_ID = ifelse(
       all(is.na(PubChem_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(PubChem_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(PubChem_ID), " "))), collapse = "{}")
     ),
     
     ChEBI_ID = ifelse(
       all(is.na(ChEBI_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(ChEBI_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(ChEBI_ID), " "))), collapse = "{}")
     ),
     
     ChEMBL_ID = ifelse(
       all(is.na(ChEMBL_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(ChEMBL_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(ChEMBL_ID), " "))), collapse = "{}")
     ),
     
     `PDB-CCD_ID` = ifelse(
       all(is.na(`PDB-CCD_ID`)), NA,  
-      paste(unique(unlist(strsplit(na.omit(`PDB-CCD_ID`), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(`PDB-CCD_ID`), " "))), collapse = "{}")
     ),
     
     `3DMET_ID` = ifelse(
       all(is.na(`3DMET_ID`)), NA,  
-      paste(unique(unlist(strsplit(na.omit(`3DMET_ID`), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(`3DMET_ID`), " "))), collapse = "{}")
     ),
     
     NIKKAJI_ID = ifelse(
       all(is.na(NIKKAJI_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(NIKKAJI_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(NIKKAJI_ID), " "))), collapse = "{}")
     ),
     
     KNApSAcK_ID = ifelse(
       all(is.na(KNApSAcK_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(KNApSAcK_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(KNApSAcK_ID), " "))), collapse = "{}")
     ),
     
     LIPIDMAPS_ID = ifelse(
       all(is.na(LIPIDMAPS_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(LIPIDMAPS_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(LIPIDMAPS_ID), " "))), collapse = "{}")
     ),
     
     LipidBank_ID = ifelse(
       all(is.na(LipidBank_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(LipidBank_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(LipidBank_ID), " "))), collapse = "{}")
     ),
     
     LigandBox_ID = ifelse(
       all(is.na(LigandBox_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(LigandBox_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(LigandBox_ID), " "))), collapse = "{}")
     ),
     
     DrugBank_ID = ifelse(
       all(is.na(DrugBank_ID)), NA,  
-      paste(unique(unlist(strsplit(na.omit(DrugBank_ID), " "))), collapse = " ")
+      paste(unique(unlist(strsplit(na.omit(DrugBank_ID), " "))), collapse = "{}")
     ),
     
     ATOM = ifelse(
@@ -407,16 +394,17 @@ Final_combined_result <-
     
   ) %>%
   ungroup() %>%
-  bind_rows(Compound_combined_result %>% filter(is.na(drug_id_first)))
+  bind_rows(Compound_combined_result %>% filter(is.na(DRUG_ID)))
 
-Final_combined_result <- 
-  Final_combined_result %>% 
-  dplyr::select(-drug_id_first)
+which(str_detect(Final_combined_result$COMPOUND_ID, "\\{\\}"))
+Final_combined_result$COMPOUND_ID <- word(Final_combined_result$COMPOUND_ID, 1, sep = "\\{\\}")
+
+
 
 dir.create("2_data/6_Combine/final_combine_result", showWarnings = FALSE)
 setwd("2_data/6_Combine/final_combine_result")
 
-save(Final_combined_result, file = "Final_combined_result.rda")
+save(Final_combined_result, file = "Final_combined_result2.rda")
 
 load("2_data/6_Combine/final_combine_result/Final_combined_result.rda")
 
@@ -475,7 +463,15 @@ Real_final_combined <-
                   from_which_environment, from_virus, from_which_virus, from_protist, from_which_protist, from_drug, from_which_drug, 
                   from_food, from_which_food), ~ replace_na(.x, "Unknown")))
 
+Real_final_combined$from_drug <- ifelse(!is.na(Real_final_combined$DRUG_ID), "Yes", Real_final_combined$from_drug)
+
+kegg_database <- Real_final_combined
+
+kegg_database <- kegg_database %>%
+  dplyr::select(COMPOUND_ID, everything())
+
 dir.create("2_data/6_Combine/Real_final_combined", showWarnings = FALSE)
 setwd("2_data/6_Combine/Real_final_combined")
 
-save(Real_final_combined, file = "Real_final_combined.rda")
+save(kegg_database, file = "kegg_database.rda")
+

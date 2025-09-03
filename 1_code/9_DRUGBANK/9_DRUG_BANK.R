@@ -868,7 +868,7 @@ drugbank_database <-
 drugbank_database <- 
   drugbank_database %>% 
   mutate(
-    from_human = ifelse(is.na(From_human), "Unknown", From_human),
+    from_human = "Unknown",
     from_which_part = "Unknown",
     from_bacteria = "Unknown",
     from_which_bacteria = "Unknown",

@@ -279,8 +279,6 @@ hmdb_metabolite$biospecimen_locations[hmdb_metabolite$biospecimen_locations == "
 hmdb_metabolite$tissue_locations[hmdb_metabolite$tissue_locations == ""] <- NA
 
 
-
-
 hmdb_metabolite <- 
   hmdb_metabolite %>% 
   rowwise() %>% 
@@ -314,8 +312,64 @@ hmdb_metabolite <-
     
   )
 
+#
+setwd("2_data/7_HMDB/HMDB_files")
+
+#
+drug_orgin <- read.csv("Drug", sep = ",", header = TRUE, stringsAsFactors = FALSE)
+food_orgin <- read.csv("Food", sep = ",", header = TRUE, stringsAsFactors = FALSE)
+environment_orgin <- read.csv("Environment", sep = ",", header = TRUE, stringsAsFactors = FALSE)
+Mic_orgin <- read.csv("Microbial", sep = ",", header = TRUE, stringsAsFactors = FALSE)
+plant_orgin <- read.csv("Plant", sep = ",", header = TRUE, stringsAsFactors = FALSE)
+
+# 1. Drug
+idx <- which(hmdb_metabolite$accession %in% drug_orgin$HMDB_ID)
+
+# 修改对应行的列值
+hmdb_metabolite$from_drug[idx]        <- "Yes"
+hmdb_metabolite$from_human[idx]       <- "Unknown"
+hmdb_metabolite$from_which_part[idx]  <- "Unknown"
+
+
+# 2. Food
+idx <- which(hmdb_metabolite$accession %in% food_orgin$HMDB_ID)
+
+# 修改对应行的列值
+hmdb_metabolite$from_food[idx]        <- "Yes"
+hmdb_metabolite$from_human[idx]       <- "Unknown"
+hmdb_metabolite$from_which_part[idx]  <- "Unknown"
+
+
+# 3. Environment
+idx <- which(hmdb_metabolite$accession %in% environment_orgin$HMDB_ID)
+
+# 修改对应行的列值
+hmdb_metabolite$from_environment[idx]        <- "Yes"
+hmdb_metabolite$from_human[idx]       <- "Unknown"
+hmdb_metabolite$from_which_part[idx]  <- "Unknown"
+
+
+
+# 4. Mic
+idx <- which(hmdb_metabolite$accession %in% Mic_orgin$HMDB_ID)
+
+# 修改对应行的列值
+hmdb_metabolite$from_bacteria[idx]        <- "Yes"
+hmdb_metabolite$from_human[idx]       <- "Unknown"
+hmdb_metabolite$from_which_part[idx]  <- "Unknown"
+
+
+
+# 5. Plant
+idx <- which(hmdb_metabolite$accession %in% plant_orgin$HMDB_ID)
+
+# 修改对应行的列值
+hmdb_metabolite$from_plant[idx]        <- "Yes"
+hmdb_metabolite$from_human[idx]       <- "Unknown"
+hmdb_metabolite$from_which_part[idx]  <- "Unknown"
+
 dir.create("2_data/7_HMDB/HMDB_Origin", showWarnings = FALSE)
 setwd("2_data/7_HMDB/HMDB_Origin")
 
-save(hmdb_metabolite, file = "HMDB_Origin.rda")
+save(hmdb_metabolite, file = "~/tidymass/metabolite_database/2_data/7_HMDB/HMDB_Origin/HMDB_Origin_final.rda")
 
