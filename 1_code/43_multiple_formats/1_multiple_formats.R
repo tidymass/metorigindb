@@ -23,7 +23,6 @@ pos <- match("from_which_bacteria", cols)
 # new order of columns
 new_order <- append(cols[-match(cols_to_move, cols)], cols_to_move, after = pos)
 
-# 重新排列
 metorigindb_database_final <- metorigindb_database[, new_order]
 
 # save as rda
@@ -51,6 +50,6 @@ data_tsv <- read.delim(
   quote = "\"",
   check.names = FALSE,
   stringsAsFactors = FALSE,
-  fill = TRUE,           # 填充不完整的行
-  blank.lines.skip = TRUE # 跳过空白行
+  fill = TRUE,           
+  blank.lines.skip = TRUE 
 )
