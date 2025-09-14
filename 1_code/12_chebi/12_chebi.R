@@ -1,14 +1,7 @@
 library(r4projects)
 setwd(get_project_wd())
 rm(list = ls())
-source('1_code/100_tools.R')
 
-library(metid)
-library(tidyverse)
-
-library(dplyr)
-library(ggplot2)
-library(XML)
 library(tidyverse)
 
 chebi_data <- 
